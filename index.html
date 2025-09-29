@@ -329,5 +329,18 @@
       </svg>
     </button>
   </div>
+  <script>
+    if (location.pathname.includes('/article.html') || location.pathname.includes('/category.html')) {
+      document.body.innerHTML = `
+        <div class="main-container">
+          <main>
+            <h1>404 - Page Not Found</h1>
+            <p>Articles unavailable in local preview (no Firebase). Try the live site.</p>
+            <a href="/" class="home-button ripple-btn light">Return to Homepage</a>
+          </main>
+        </div>
+      `;
+    }
+  </script>
 </body>
 </html>
