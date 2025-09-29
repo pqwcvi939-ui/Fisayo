@@ -14,7 +14,7 @@ const maxRetries = 3;
 // Environment-aware link generators
 function getArticleLink(category, slug) {
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  return isLocal ? `/articles.html?category=${encodeURIComponent(category)}&slug=${encodeURIComponent(slug)}` : `/${category}/${slug}`;
+  return isLocal ? `/article.html?slug=${encodeURIComponent(slug)}` : `/article/${slug}`;
 }
 
 function getCategoryLink(category) {
@@ -115,15 +115,13 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
-async function getArticleBySlug(slug, category) {
+async function getArticleBySlug(slug, category = null) {
   if (!db) {
     throw new Error('Database not initialized');
   }
-  const q = query(
-    collection(db, 'articles'),
-    where('slug', '==', slug),
-    where('category', '==', category)
-  );
+  let q = category
+    ? query(collection(db, 'articles'), where('slug', '==', slug), where('category', '==', category))
+    : query(collection(db, 'articles'), where('slug', '==', slug));
   const snapshot = await withRetry(() => getDocs(q));
   if (!snapshot.empty) {
     const doc = snapshot.docs[0];
@@ -507,10 +505,11 @@ async function loadArticle() {
   const slugFromQuery = urlParams.get('slug');
   const path = window.location.pathname;
   const pathParts = path.split('/').filter(part => part);
-  const categoryFromPath = pathParts[0];
-  const slugFromPath = pathParts[1];
-  const category = categoryFromQuery || categoryFromPath;
-  const slug = slugFromQuery || slugFromPath;
+  let category = categoryFromQuery;
+  let slug = slugFromQuery || (pathParts[0] === 'article' ? pathParts[1] : pathParts[1]);
+  if (pathParts[0] !== 'article') {
+    category = category || pathParts[0];
+  }
   console.log('Attempting to load article with Category:', category, 'Slug:', slug, 'ID:', id);
 
   if (!db) {
@@ -543,9 +542,9 @@ async function loadArticle() {
       displayErrorMessage('#article-content', `Failed to load article: ${error.message}. Check Firestore or try refreshing.`);
       return;
     }
-  } else if (category && slug) {
+  } else if (slug) {
     const previewArticle = JSON.parse(localStorage.getItem('previewArticle') || '{}');
-    if (previewArticle.category === category && previewArticle.slug === slug) {
+    if (previewArticle.slug === slug && (!category || previewArticle.category === category)) {
       article = previewArticle;
       isPreview = true;
       console.log('Using preview article from localStorage:', article.title);
@@ -553,12 +552,13 @@ async function loadArticle() {
       try {
         article = await getArticleBySlug(slug, category);
         if (!article) {
-          console.error('Article not found in Firestore for Category:', category, 'Slug:', slug);
+          console.error('Article not found in Firestore for Slug:', slug, 'Category:', category);
           displayErrorMessage('#article-content', `Article not found. It may have been deleted or the URL is incorrect.`);
           return;
         }
+        if (!category) category = article.category; // Set category for metadata
       } catch (error) {
-        console.error('Error loading article (Category:', category, 'Slug:', slug, '):', error.message, error.code);
+        console.error('Error loading article (Slug:', slug, 'Category:', category, '):', error.message, error.code);
         let errorMessage = `Failed to load article: ${error.message}. `;
         if (error.code === 'permission-denied') {
           errorMessage += 'Check Firestore security rules to ensure public read access to the "articles" collection.';
@@ -572,7 +572,7 @@ async function loadArticle() {
       }
     }
   } else {
-    console.error('No category, slug, or ID provided in URL');
+    console.error('No slug or ID provided in URL');
     displayErrorMessage('#article-content', 'No article specified in the URL. Please select an article from the homepage or check the link.');
     return;
   }
@@ -597,7 +597,7 @@ async function loadArticle() {
       articleCard: !!articleCard,
       likeCount: !!likeCount
     });
-    displayErrorMessage('#article-content', 'Failed to load article: Page elements are missing. Please check the HTML structure of articles.html.');
+    displayErrorMessage('#article-content', 'Failed to load article: Page elements are missing. Please check the HTML structure of article.html.');
     return;
   }
 

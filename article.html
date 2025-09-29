@@ -8,14 +8,14 @@
   <meta name="author" content="Naija Truths Team">
   <meta property="og:title" content="Naija Truths - Loading article...">
   <meta property="og:description" content="Naija Truths - Loading article...">
-  <meta property="og:image" content="https://res.cloudinary.com/dutxozfx7/image/upload/v1758308085/IMG-20250910-WA0114_kcrdge.jpg">
-  <meta property="og:url" content="https://naija-truths.netlify.app">
+  <meta property="og:image" content="https://via.placeholder.com/1200x630">
+  <meta property="og:url" content="https://naija-truths.netlify.app/article/:slug">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@NaijaTruths">
-  <link rel="canonical" href="https://naija-truths.netlify.app">
+  <link rel="canonical" href="https://naija-truths.netlify.app/article/:slug">
   <title>Naija Truths - Article</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&family=Bebas+Neue&display=swap">
-  <link rel="stylesheet" href="main.css">
+  <link rel="stylesheet" href="/main.css">
   <script type="module" src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js"></script>
   <script type="module" src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js"></script>
   <script type="module" src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js"></script>
@@ -30,8 +30,8 @@
     window.env.VITE_FIREBASE_APP_ID = '1:476936659655:web:0df8b9419012dac9e014e2';
     window.env.VITE_FIREBASE_MEASUREMENT_ID = 'G-69WH8S8X8H';
   </script>
-  <script type="module" src="main.js"></script>
-  <script type="module" src="ads.js"></script>
+  <script type="module" src="/main.js"></script>
+  <script type="module" src="/ads.js"></script>
 </head>
 <body>
   <div id="preloader">
@@ -256,5 +256,18 @@
       </svg>
     </button>
   </div>
+  <script>
+    if (location.pathname.includes('/article.html') && !location.pathname.startsWith('/article/')) {
+      document.body.innerHTML = `
+        <div class="main-container">
+          <main>
+            <h1>404 - Page Not Found</h1>
+            <p>Articles unavailable in local preview (no Firebase). Try the live site.</p>
+            <a href="/" class="home-button ripple-btn light">Return to Homepage</a>
+          </main>
+        </div>
+      `;
+    }
+  </script>
 </body>
 </html>
