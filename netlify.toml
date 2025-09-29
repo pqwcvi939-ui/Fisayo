@@ -9,13 +9,13 @@
   status = 200
 
 [[redirects]]
-  from = "/:category/:slug"
-  to = "/404.html"  # Changed from /articles.html to /404.html
+  from = "/article/:slug"
+  to = "/article.html"
   status = 200
 
 [[redirects]]
   from = "/search"
-  to = "/search.html"
+  to = "/index.html"
   status = 200
 
 [[redirects]]
@@ -36,7 +36,7 @@
 [[redirects]]
   from = "/*"
   to = "/404.html"
-  status = 200
+  status = 404
 
 # Headers
 [[headers]]
@@ -48,4 +48,3 @@
   for = "/*.css"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
-    Content-Type = "text/css"
