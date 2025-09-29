@@ -10,7 +10,7 @@
 
 [[redirects]]
   from = "/:category/:slug"
-  to = "/articles.html"
+  to = "/404.html"  # Changed from /articles.html to /404.html
   status = 200
 
 [[redirects]]
@@ -28,7 +28,6 @@
   to = "/admin.html"
   status = 200
 
-# 404 page — still works but won’t block CSS/JS
 [[redirects]]
   from = "/404"
   to = "/404.html"
